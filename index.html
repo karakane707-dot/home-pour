@@ -1,0 +1,3846 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>HOME POUR｜家飲みと、次の楽しみ。</title>
+
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* =========================
+           FIXED UTILITY BUTTONS
+        ========================== */
+
+        .fixed-utility-buttons {
+            position: fixed;
+            right: max(4px, calc((100vw - 520px) / 2 + 4px));
+            bottom: calc(18px + env(safe-area-inset-bottom));
+
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+
+            gap: 8px;
+
+            z-index: 1000;
+        }
+
+        .gacha-float-button,
+        .share-button,
+        .clear-input-button,
+        .back-to-pour {
+            width: 88px;
+            height: 38px;
+
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 8px;
+
+            padding: 0 10px 0 9px;
+
+            border: 1px solid #ad6d27;
+            border-radius: 14px 0 0 14px;
+
+            background: rgba(243, 240, 232, 0.92);
+
+            color: #ad6d27;
+
+            font-family: inherit;
+            text-align: left;
+
+            box-shadow: 0 2px 7px rgba(40, 34, 28, 0.05);
+
+            cursor: pointer;
+
+            transition:
+                background 0.2s ease,
+                color 0.2s ease,
+                opacity 0.25s ease,
+                transform 0.25s ease,
+                visibility 0.25s ease,
+                box-shadow 0.2s ease;
+        }
+
+        .gacha-float-button:hover,
+        .share-button:hover,
+        .clear-input-button:hover,
+        .back-to-pour:hover {
+            background: #ad6d27;
+            color: #f3f0e8;
+            transform: translateX(-2px);
+            box-shadow: 0 4px 10px rgba(40, 34, 28, 0.08);
+        }
+
+        .gacha-float-button:focus-visible,
+        .share-button:focus-visible,
+        .clear-input-button:focus-visible,
+        .back-to-pour:focus-visible {
+            outline: 2px solid #ad6d27;
+            outline-offset: 3px;
+        }
+
+        .gacha-float-button svg,
+        .share-button svg,
+        .clear-input-button svg,
+        .back-to-pour svg {
+            width: 16px;
+            height: 16px;
+            flex: 0 0 16px;
+            display: block;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 1.7;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .utility-label {
+            display: block;
+            font-size: 9px;
+            font-weight: 500;
+            line-height: 1;
+            letter-spacing: 0.14em;
+            white-space: nowrap;
+        }
+
+        .gacha-float-button {
+            position: relative;
+            overflow: hidden;
+            background:
+                linear-gradient(90deg, rgba(173, 109, 39, 0.09), rgba(243, 240, 232, 0.94) 56%);
+        }
+
+        .gacha-float-button::after {
+            content: "";
+            position: absolute;
+            top: 5px;
+            bottom: 5px;
+            left: 29px;
+            width: 1px;
+            background: rgba(173, 109, 39, 0.22);
+        }
+
+        .gacha-float-button .utility-label {
+            padding-left: 2px;
+        }
+
+        .share-button.is-copied {
+            width: 88px;
+            height: 38px;
+        }
+
+
+        /* =========================
+           RESULT QUIZ SHARE
+        ========================== */
+
+        .result-quiz-share-wrap {
+            margin-top: 22px;
+            text-align: center;
+        }
+
+        .result-quiz-share-button {
+            width: min(100%, 300px);
+            min-height: 48px;
+
+            padding: 0 22px;
+
+            border: 1px solid #ad6d27;
+            border-radius: 18px;
+
+            background: transparent;
+            color: #ad6d27;
+
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: 500;
+            line-height: 1.2;
+            letter-spacing: 0.08em;
+
+            cursor: pointer;
+
+            transition:
+                background 0.2s ease,
+                color 0.2s ease,
+                transform 0.2s ease;
+        }
+
+        .result-quiz-share-button:hover {
+            background: #ad6d27;
+            color: #f3f0e8;
+        }
+
+        .result-quiz-share-button:active {
+            transform: translateY(1px);
+        }
+
+        .result-quiz-share-button:focus-visible {
+            outline: 2px solid #ad6d27;
+            outline-offset: 3px;
+        }
+
+
+        /* =========================
+           BACK TO POUR
+        ========================== */
+
+        .back-to-pour {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+
+            transform: translateY(10px);
+        }
+
+        .back-to-pour.is-visible {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+
+            transform: translateY(0);
+        }
+
+
+
+
+
+        /* =========================
+           MINI QUIZ / DEMO FLOW
+        ========================== */
+
+        .hp-mini-quiz {
+            margin: 0 0 28px;
+            padding: 28px 20px 20px;
+            border: 1px solid #b79a73;
+            border-radius: 22px;
+            background: rgba(248, 245, 238, 0.72);
+            text-align: center;
+        }
+
+        .hp-mini-quiz-kicker {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 14px;
+            color: #9f672b;
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: 13px;
+            letter-spacing: .18em;
+        }
+
+        .hp-mini-quiz-kicker::before,
+        .hp-mini-quiz-kicker::after {
+            content: "";
+            width: 34px;
+            height: 1px;
+            background: #c8a97e;
+        }
+
+        .hp-mini-quiz-question {
+            margin: 0 0 20px;
+            color: #29251f;
+            font-weight: 500;
+            line-height: 1.55;
+        }
+
+        .hp-mini-quiz-question-main {
+            display: block;
+            font-size: 25px;
+            white-space: nowrap;
+        }
+
+        .hp-mini-quiz-question-note {
+            font-size: 13px;
+            font-weight: 400;
+            color: #6d6257;
+        }
+
+        .hp-mini-quiz-question-sub {
+            display: block;
+            font-size: 25px;
+        }
+
+        .hp-mini-quiz-compare {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            border-top: 1px solid #cdbb9d;
+            border-bottom: 1px solid #cdbb9d;
+        }
+
+        .hp-mini-quiz-side {
+            padding: 16px 8px 18px;
+        }
+
+        .hp-mini-quiz-side + .hp-mini-quiz-side {
+            border-left: 1px solid #cdbb9d;
+        }
+
+        .hp-mini-quiz-label {
+            display: block;
+            color: #786b5d;
+            font-family: Georgia, "Yu Mincho", serif;
+            font-size: 15px;
+            letter-spacing: .08em;
+            white-space: nowrap;
+        }
+
+        .hp-mini-quiz-price {
+            display: block;
+            margin-top: 8px;
+            color: #29251f;
+            font-family: Georgia, "Yu Mincho", serif;
+            font-size: 30px;
+            font-weight: 400;
+            line-height: 1;
+            white-space: nowrap;
+        }
+
+        .hp-mini-quiz-side:first-child .hp-mini-quiz-price {
+            color: #ad6d27;
+        }
+
+        .hp-demo-answer-button {
+            width: 100%;
+            min-height: 54px;
+            margin-top: 18px;
+            padding: 0 20px;
+            border: 0;
+            border-radius: 999px;
+            background: #c66f12;
+            color: #fffaf1;
+            font-family: inherit;
+            font-size: 16px;
+            font-weight: 500;
+            letter-spacing: .08em;
+            cursor: pointer;
+        }
+
+        .hp-demo-answer-button span {
+            margin-left: 8px;
+        }
+
+        .hp-demo-condition {
+            margin: 10px 0 0;
+            color: #75695d;
+            font-size: 10px;
+            line-height: 1.6;
+            letter-spacing: .03em;
+        }
+
+        .hp-demo-condition strong {
+            font-weight: 500;
+            color: #5b5147;
+        }
+
+        .hp-own-flow-wrap {
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        .hp-own-flow-button {
+            width: min(100%, 300px);
+            min-height: 48px;
+            padding: 0 20px;
+            border: 1px solid #ad6d27;
+            border-radius: 999px;
+            background: transparent;
+            color: #ad6d27;
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: 500;
+            letter-spacing: .06em;
+            cursor: pointer;
+        }
+
+        @media (max-width: 430px) {
+            .hp-mini-quiz {
+                padding: 24px 14px 16px;
+            }
+
+            .hp-mini-quiz-question-main,
+            .hp-mini-quiz-question-sub {
+                font-size: 22px;
+            }
+
+            .hp-mini-quiz-question-note {
+                font-size: 11px;
+            }
+
+            .hp-mini-quiz-label {
+                font-size: 13px;
+            }
+
+            .hp-mini-quiz-price {
+                font-size: 28px;
+            }
+        }
+
+
+
+
+        /* =========================
+           BONUS GAME / POUR ENTITY
+        ========================== */
+
+        body.gacha-modal-open {
+            overflow: hidden;
+        }
+
+        .bonus-game-section {
+            margin: 36px 0 10px;
+            padding: 30px 18px 22px;
+            border: 1px solid rgba(173, 109, 39, 0.58);
+            border-radius: 22px;
+            background:
+                radial-gradient(circle at 50% 0%, rgba(173, 109, 39, 0.08), transparent 44%),
+                rgba(248, 245, 238, 0.68);
+            text-align: center;
+            overflow: hidden;
+        }
+
+        .bonus-game-kicker {
+            color: #9f672b;
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: 11px;
+            letter-spacing: .22em;
+        }
+
+        .bonus-game-title {
+            margin: 6px 0 0;
+            color: #29251f;
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: 31px;
+            font-weight: 400;
+            letter-spacing: .08em;
+        }
+
+        .bonus-game-copy {
+            margin: 9px auto 0;
+            max-width: 310px;
+            color: #6f6459;
+            font-size: 11px;
+            line-height: 1.8;
+            letter-spacing: .04em;
+        }
+
+        .gacha-card-stage {
+            position: relative;
+            width: 158px;
+            height: 188px;
+            margin: 24px auto 20px;
+        }
+
+        .gacha-back-card,
+        .gacha-front-card {
+            position: absolute;
+            width: 112px;
+            height: 156px;
+            border: 1px solid #ad6d27;
+            border-radius: 15px;
+            background: #f3f0e8;
+            box-shadow: 0 7px 20px rgba(42, 34, 27, 0.07);
+        }
+
+        .gacha-back-card.one {
+            left: 3px;
+            top: 18px;
+            transform: rotate(-10deg);
+            opacity: .54;
+        }
+
+        .gacha-back-card.two {
+            right: 3px;
+            top: 18px;
+            transform: rotate(10deg);
+            opacity: .54;
+        }
+
+        .gacha-front-card {
+            left: 23px;
+            top: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .gacha-front-mark {
+            display: grid;
+            place-items: center;
+            width: 58px;
+            height: 58px;
+            border: 1px solid #ad6d27;
+            border-radius: 50%;
+            color: #ad6d27;
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: 34px;
+            line-height: 1;
+        }
+
+        .gacha-front-card small {
+            color: #75695d;
+            font-size: 8px;
+            letter-spacing: .2em;
+        }
+
+        .gacha-rarity-line {
+            display: flex;
+            justify-content: center;
+            gap: 7px;
+            margin: 0 0 18px;
+            flex-wrap: wrap;
+        }
+
+        .gacha-rarity-line span {
+            min-width: 32px;
+            padding: 4px 7px;
+            border: 1px solid rgba(173, 109, 39, 0.45);
+            border-radius: 999px;
+            color: #8b765f;
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: 9px;
+            letter-spacing: .08em;
+        }
+
+        .gacha-draw-button {
+            width: min(100%, 286px);
+            min-height: 52px;
+            border: 0;
+            border-radius: 999px;
+            background: #2e2924;
+            color: #f8f3e9;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 500;
+            letter-spacing: .12em;
+            cursor: pointer;
+            transition: transform .2s ease, background .2s ease;
+        }
+
+        .gacha-draw-button:hover {
+            background: #ad6d27;
+        }
+
+        .gacha-draw-button:active {
+            transform: translateY(1px);
+        }
+
+        .gacha-trial-note {
+            margin: 10px 0 0;
+            color: #8a7f73;
+            font-size: 9px;
+            letter-spacing: .04em;
+        }
+
+        .gacha-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 2300;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 18px;
+            background: rgba(35, 31, 27, .66);
+            backdrop-filter: blur(6px);
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity .22s ease, visibility .22s ease;
+        }
+
+        .gacha-modal.is-open {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+
+        .gacha-panel {
+            position: relative;
+            width: min(100%, 390px);
+            max-height: calc(100dvh - 28px);
+            overflow-y: auto;
+            padding: 18px;
+            border-radius: 20px;
+            background: #eee9df;
+            box-shadow: 0 18px 48px rgba(27, 22, 18, .24);
+        }
+
+        .gacha-close {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            z-index: 2;
+            width: 34px;
+            height: 34px;
+            border: 1px solid rgba(173, 109, 39, .48);
+            border-radius: 50%;
+            background: rgba(243, 240, 232, .92);
+            color: #ad6d27;
+            font-size: 20px;
+            line-height: 1;
+            cursor: pointer;
+        }
+
+        .gacha-result-card {
+            position: relative;
+            padding: 26px 20px 22px;
+            border: 1px solid #b78b58;
+            border-radius: 16px;
+            background:
+                linear-gradient(rgba(255,255,255,.18), rgba(255,255,255,.05)),
+                #f4f0e7;
+            text-align: center;
+            overflow: hidden;
+        }
+
+        .gacha-result-card::before {
+            content: "";
+            position: absolute;
+            inset: 9px;
+            border: 1px solid rgba(173, 109, 39, .2);
+            border-radius: 11px;
+            pointer-events: none;
+        }
+
+        .gacha-result-top {
+            position: relative;
+            z-index: 1;
+        }
+
+        .gacha-result-label {
+            color: #7d7064;
+            font-size: 9px;
+            letter-spacing: .22em;
+        }
+
+        .gacha-rarity {
+            margin-top: 5px;
+            color: #ad6d27;
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: 32px;
+            font-weight: 400;
+            letter-spacing: .12em;
+        }
+
+        .gacha-rarity-rate {
+            margin-top: 2px;
+            color: #928274;
+            font-size: 9px;
+            letter-spacing: .08em;
+        }
+
+        .gacha-entity-art {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            place-items: center;
+            width: 180px;
+            height: 206px;
+            margin: 17px auto 12px;
+        }
+
+        .gacha-entity-art svg {
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+        }
+
+        .gacha-entity-art .entity-main,
+        .gacha-entity-art .entity-detail {
+            fill: none;
+            stroke: #302a25;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .gacha-entity-art .entity-main {
+            stroke-width: 2.1;
+        }
+
+        .gacha-entity-art .entity-detail {
+            stroke-width: 1.15;
+            opacity: .64;
+        }
+
+        .gacha-entity-art .entity-accent {
+            fill: none;
+            stroke: #ad6d27;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .gacha-entity-code {
+            position: relative;
+            z-index: 1;
+            color: #29251f;
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: 25px;
+            letter-spacing: .08em;
+        }
+
+        .gacha-entity-temp {
+            position: relative;
+            z-index: 1;
+            margin: 8px 0 0;
+            color: #6f6459;
+            font-size: 11px;
+            line-height: 1.7;
+        }
+
+        .gacha-entity-temp strong {
+            display: block;
+            margin-bottom: 3px;
+            color: #ad6d27;
+            font-size: 9px;
+            font-weight: 500;
+            letter-spacing: .16em;
+        }
+
+        .gacha-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 9px;
+            margin-top: 12px;
+        }
+
+        .gacha-actions button {
+            min-height: 45px;
+            border-radius: 999px;
+            font-family: inherit;
+            font-size: 10px;
+            font-weight: 500;
+            letter-spacing: .08em;
+            cursor: pointer;
+        }
+
+        .gacha-redraw {
+            border: 1px solid #ad6d27;
+            background: transparent;
+            color: #ad6d27;
+        }
+
+        .gacha-share {
+            border: 1px solid #2e2924;
+            background: #2e2924;
+            color: #f8f3e9;
+        }
+
+        .gacha-status {
+            min-height: 18px;
+            margin-top: 8px;
+            color: #71665b;
+            font-size: 9px;
+            line-height: 1.5;
+            text-align: center;
+        }
+
+        .gacha-reveal-mask {
+            position: absolute;
+            inset: 0;
+            z-index: 4;
+            display: grid;
+            place-items: center;
+            background: #29251f;
+            color: #f3f0e8;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity .16s ease, visibility .16s ease;
+        }
+
+        .gacha-result-card.is-drawing .gacha-reveal-mask {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .gacha-reveal-mask span {
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: 13px;
+            letter-spacing: .24em;
+        }
+
+        @media (max-width: 430px) {
+            .bonus-game-section {
+                margin-top: 28px;
+                padding: 26px 14px 18px;
+            }
+
+            .bonus-game-title {
+                font-size: 27px;
+            }
+
+            .gacha-panel {
+                padding: 14px;
+            }
+
+            .gacha-result-card {
+                padding: 23px 16px 20px;
+            }
+
+            .gacha-entity-art {
+                width: 164px;
+                height: 188px;
+            }
+        }
+
+
+        /* =========================
+           SHARE QUIZ MODAL
+        ========================== */
+
+        body.quiz-modal-open {
+            overflow: hidden;
+        }
+
+        .share-quiz-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 2000;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            padding: 18px;
+
+            background: rgba(38, 34, 29, 0.58);
+            backdrop-filter: blur(5px);
+
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+
+            transition:
+                opacity 0.22s ease,
+                visibility 0.22s ease;
+        }
+
+        .share-quiz-modal.is-open {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+
+        .share-quiz-panel {
+            position: relative;
+
+            width: min(100%, 430px);
+            max-height: calc(100dvh - 36px);
+
+            overflow-y: auto;
+
+            padding: 18px 18px 16px;
+
+            border: 1px solid #cdbb9d;
+            border-radius: 16px;
+
+            background: #f3f0e8;
+
+            box-shadow: 0 20px 60px rgba(25, 21, 17, 0.22);
+        }
+
+        .share-quiz-close {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+
+            width: 32px;
+            height: 32px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            padding: 0;
+
+            border: 1px solid #cdbb9d;
+            border-radius: 50%;
+
+            background: transparent;
+            color: #655c52;
+
+            font-family: inherit;
+            font-size: 19px;
+            line-height: 1;
+
+            cursor: pointer;
+        }
+
+        .share-quiz-panel-title {
+            margin: 2px 42px 14px 2px;
+
+            font-size: 12px;
+            font-weight: 400;
+            line-height: 1.4;
+            letter-spacing: 0.14em;
+        }
+
+        .share-quiz-card {
+            padding: 22px 20px 18px;
+
+            border: 1px solid #a9977c;
+            border-radius: 11px;
+
+            background: #f6f2e9;
+
+            color: #29251f;
+
+            text-align: center;
+        }
+
+        .share-card-brand {
+            margin: 0;
+
+            font-size: 20px;
+            font-weight: 500;
+            line-height: 1;
+            letter-spacing: 0.18em;
+        }
+
+        .share-card-brand-sub {
+            margin: 7px 0 0;
+
+            color: #554d44;
+
+            font-size: 9px;
+            line-height: 1.4;
+            letter-spacing: 0.13em;
+        }
+
+        .share-card-visual {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+
+            gap: 14px;
+
+            width: 128px;
+            height: 72px;
+
+            margin: 18px auto 10px;
+        }
+
+        .share-card-visual svg {
+            display: block;
+
+            fill: none;
+            stroke: #322d27;
+            stroke-width: 1.35;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .share-card-visual .share-bottle-icon {
+            width: 45px;
+            height: 72px;
+        }
+
+        .share-card-visual .share-glass-icon {
+            width: 57px;
+            height: 49px;
+        }
+
+        .share-card-visual .share-accent {
+            stroke: #ad6d27;
+            stroke-width: 2;
+        }
+
+        .share-card-question {
+            margin: 8px 0 16px;
+
+            font-size: 26px;
+            font-weight: 500;
+            line-height: 1.5;
+            letter-spacing: 0.02em;
+        }
+
+        .share-card-question-line {
+            display: block;
+        }
+
+        .share-card-question-note {
+            display: inline-block;
+
+            margin-left: 4px;
+
+            font-size: 0.48em;
+            font-weight: 400;
+            letter-spacing: 0.04em;
+            vertical-align: 0.18em;
+        }
+
+        .share-card-comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+
+            margin: 0 auto 16px;
+
+            border-top: 1px solid #cdbb9d;
+            border-bottom: 1px solid #cdbb9d;
+        }
+
+        .share-card-side {
+            padding: 11px 8px 12px;
+        }
+
+        .share-card-side + .share-card-side {
+            border-left: 1px solid #cdbb9d;
+        }
+
+        .share-card-side > span {
+            display: block;
+
+            color: #7a6f63;
+
+            font-size: 14px;
+            line-height: 1.2;
+            letter-spacing: 0.08em;
+            white-space: nowrap;
+        }
+
+        .share-card-side strong {
+            display: block;
+
+            margin-top: 7px;
+
+            color: #ad6d27;
+
+            font-size: 31px;
+            font-weight: 400;
+            line-height: 1.08;
+            white-space: nowrap;
+        }
+
+        .share-card-side strong span {
+            display: inline;
+
+            color: inherit;
+
+            font-size: inherit;
+            font-weight: inherit;
+            line-height: inherit;
+            letter-spacing: inherit;
+            white-space: nowrap;
+        }
+
+        .share-card-side.out strong {
+            color: #29251f;
+        }
+
+        .share-card-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+
+            gap: 8px;
+            margin-top: 14px;
+        }
+
+        .share-card-option {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+
+            min-height: 42px;
+
+            padding: 8px 11px;
+
+            border: 1px solid #bca98b;
+            border-radius: 999px;
+
+            background: rgba(255, 255, 255, 0.18);
+
+            text-align: left;
+        }
+
+        .share-card-option b {
+            width: 23px;
+
+            color: #ad6d27;
+
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .share-card-option span {
+            font-size: 14px;
+            letter-spacing: 0.01em;
+        }
+
+        .share-card-cta {
+            margin: 18px 0 0;
+
+            color: #ad6d27;
+
+            font-size: 12px;
+            line-height: 1.5;
+            letter-spacing: 0.06em;
+        }
+
+        .share-card-answer-link {
+            display: inline-block;
+
+            margin-top: 12px;
+
+            color: #2e2924;
+
+            font-size: 14px;
+            font-weight: 500;
+            line-height: 1.5;
+            letter-spacing: 0.06em;
+            text-decoration: none;
+
+            border-bottom: 1px solid #ad6d27;
+        }
+
+        .share-quiz-actions {
+            display: grid;
+            grid-template-columns: 1fr;
+
+            gap: 8px;
+
+            margin-top: 12px;
+        }
+
+        .share-quiz-action {
+            min-height: 44px;
+
+            padding: 0 16px;
+
+            border: 1px solid #ad6d27;
+            border-radius: 999px;
+
+            background: #ad6d27;
+            color: #f7f2e8;
+
+            font-family: inherit;
+            font-size: 10px;
+            letter-spacing: 0.09em;
+
+            cursor: pointer;
+        }
+
+        .share-quiz-note {
+            margin: 9px 4px 0;
+
+            color: #7b7269;
+
+            font-size: 8px;
+            line-height: 1.6;
+            text-align: center;
+        }
+
+        .share-quiz-status {
+            min-height: 18px;
+
+            margin-top: 8px;
+
+            color: #ad6d27;
+
+            font-size: 9px;
+            line-height: 1.5;
+            text-align: center;
+        }
+
+        @media (max-width: 500px) {
+
+            .fixed-utility-buttons {
+                right: 12px;
+                bottom: calc(14px + env(safe-area-inset-bottom));
+
+                gap: 8px;
+            }
+
+            .share-button {
+                width: 50px;
+                height: 45px;
+
+                font-size: 8.5px;
+            }
+
+            .result-quiz-share-wrap {
+                margin-top: 18px;
+            }
+
+            .result-quiz-share-button {
+                width: min(100%, 280px);
+                min-height: 46px;
+                font-size: 11px;
+            }
+
+            .gacha-float-button,
+            .share-button,
+            .clear-input-button,
+            .back-to-pour {
+                width: 80px;
+                height: 34px;
+                gap: 7px;
+                padding: 0 9px 0 8px;
+                border-radius: 12px 0 0 12px;
+            }
+
+            .share-button.is-copied {
+                width: 80px;
+                height: 34px;
+            }
+
+            .gacha-float-button svg,
+            .share-button svg,
+            .clear-input-button svg,
+            .back-to-pour svg {
+                width: 15px;
+                height: 15px;
+                flex-basis: 15px;
+            }
+
+            .utility-label {
+                font-size: 8px;
+                letter-spacing: 0.12em;
+            }
+
+
+            .share-quiz-modal {
+                align-items: flex-end;
+                padding: 10px;
+            }
+
+            .share-quiz-panel {
+                width: 100%;
+                max-height: calc(100dvh - 20px);
+
+                padding: 16px 14px 14px;
+
+                border-radius: 16px 16px 12px 12px;
+            }
+
+            .share-quiz-card {
+                padding: 18px 14px 16px;
+            }
+
+            .share-card-question {
+                font-size: 24px;
+            }
+
+            .share-card-option {
+                min-height: 39px;
+                padding: 7px 10px;
+            }
+
+            .share-card-option span {
+                font-size: 13px;
+            }
+
+            .share-quiz-actions {
+                grid-template-columns: 1fr;
+            }
+
+        }
+    </style>
+
+</head>
+
+<body>
+
+<main class="container">
+
+    <!-- =========================
+         HEADER
+    ========================== -->
+
+    <header class="site-header">
+
+        <h1>HOME POUR</h1>
+
+        <p>家飲みと、次の楽しみ。</p>
+
+    </header>
+
+
+    <!-- =========================
+         INTRO
+    ========================== -->
+
+    <section class="intro">
+
+        <div class="intro-main">
+
+            <div class="intro-copy">
+
+                <h2>
+                    <span class="intro-line">飲む楽しみはそのままに。</span>
+                    <span class="intro-line">楽しみを、もうひとつ。</span>
+                </h2>
+
+                <p>
+                    <span class="intro-line">家で楽しむ一杯と、お店で飲む一杯。</span>
+                    <span class="intro-line">一杯の違いが、次の楽しみにつながっていく。</span>
+                </p>
+
+            </div>
+
+
+            <div class="intro-visual" aria-hidden="true">
+
+                <svg viewBox="0 0 260 220">
+
+                    <!-- BARLEY -->
+
+                    <g class="hero-barley">
+
+                        <path d="M177 175 C176 145 178 105 183 62 C186 43 188 28 191 15" />
+                        <path d="M184 62 C174 56 168 48 165 39" />
+                        <path d="M184 51 C175 45 170 37 168 28" />
+                        <path d="M186 40 C178 34 174 27 173 19" />
+                        <path d="M187 30 C181 25 178 19 178 12" />
+
+                        <path d="M184 62 C193 57 199 49 202 41" />
+                        <path d="M185 51 C195 46 200 39 204 31" />
+                        <path d="M186 40 C196 35 201 28 204 20" />
+                        <path d="M188 30 C197 26 201 20 203 13" />
+
+                        <path d="M195 174 C200 140 207 111 216 80 C221 62 226 48 232 36" />
+                        <path d="M216 81 C207 74 202 67 201 59" />
+                        <path d="M220 69 C211 63 207 55 207 48" />
+                        <path d="M224 58 C216 52 212 45 213 38" />
+                        <path d="M228 47 C222 42 218 36 220 30" />
+
+                        <path d="M216 81 C226 77 233 71 237 63" />
+                        <path d="M220 69 C230 65 236 59 240 51" />
+                        <path d="M224 58 C234 54 240 48 243 41" />
+                        <path d="M228 47 C237 44 242 39 245 33" />
+
+                        <path d="M164 176 C163 150 161 127 157 105" />
+                        <path d="M159 116 C151 111 147 105 145 98" />
+                        <path d="M158 107 C151 102 148 96 147 90" />
+                        <path d="M159 116 C167 111 171 105 172 99" />
+                        <path d="M158 107 C166 102 169 96 170 90" />
+
+                    </g>
+
+
+                    <!-- GLASS -->
+
+                    <g class="hero-glass">
+
+                        <ellipse cx="131" cy="116" rx="35" ry="6" />
+
+                        <path
+                            d="
+                                M96 116
+                                L101 180
+                                Q102 189 111 191
+                                L151 191
+                                Q160 189 161 180
+                                L166 116
+                            "
+                        />
+
+                        <path d="M102 177 Q131 183 160 177" />
+
+                        <path
+                            class="hero-accent"
+                            d="M100 157 Q131 163 162 157"
+                        />
+
+                        <path d="M109 142 L123 130 L137 144 L122 157 Z" />
+                        <path d="M131 151 L146 138 L157 151 L142 164 Z" />
+
+                    </g>
+
+
+                    <!-- AGAVE -->
+
+                    <g class="hero-agave">
+
+                        <path d="M205 200 C198 163 198 127 202 89 C211 130 211 166 208 201" />
+                        <path d="M205 200 C211 159 221 126 234 98 C233 136 220 171 209 201" />
+                        <path d="M203 200 C194 164 185 134 175 110 C194 136 203 166 206 201" />
+
+                        <path d="M204 201 C184 168 166 143 145 123 C177 140 198 170 207 201" />
+                        <path d="M202 202 C176 177 153 160 126 149 C164 154 191 177 207 202" />
+                        <path d="M201 203 C169 187 140 178 109 176 C151 176 184 189 207 203" />
+
+                        <path d="M201 204 C164 199 131 200 96 207 C138 211 175 209 207 204" />
+                        <path d="M201 204 C170 211 143 218 121 225 C154 219 183 212 207 205" />
+
+                        <path d="M209 201 C224 165 239 139 257 118 C250 153 231 181 211 202" />
+                        <path d="M210 202 C232 177 250 160 269 149 C257 177 235 194 211 203" />
+
+                        <path d="M210 203 C233 189 251 183 268 182 C251 199 231 205 210 205" />
+                        <path d="M210 205 C231 207 248 214 263 222 C240 216 224 212 208 207" />
+
+                        <path d="M204 202 C189 177 180 156 176 137 C190 156 201 179 207 202" />
+                        <path d="M203 202 C182 184 166 172 150 164 C174 167 193 185 207 203" />
+
+                        <path d="M208 202 C216 178 226 159 238 144 C231 171 220 190 210 203" />
+                        <path d="M210 203 C226 188 239 178 253 171 C242 192 226 201 210 204" />
+
+                        <path d="M203 205 C176 207 153 214 133 226 C161 216 185 211 207 207" />
+                        <path d="M209 206 C229 210 244 217 256 229 C238 220 224 213 207 208" />
+
+                        <path class="hero-agave-detail" d="M206 198 L203 105" />
+                        <path class="hero-agave-detail" d="M204 199 L152 135" />
+                        <path class="hero-agave-detail" d="M208 198 L239 119" />
+
+                    </g>
+
+                    <path
+                        class="hero-ground"
+                        d="M82 201 C120 198 153 199 187 202 C217 204 241 204 258 201"
+                    />
+
+                </svg>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+
+    <!-- =========================
+         MINI QUIZ / DEMO
+    ========================== -->
+
+    <section class="hp-mini-quiz" aria-labelledby="hpMiniQuizTitle">
+
+        <div class="hp-mini-quiz-kicker">MINI QUIZ</div>
+
+        <h2 class="hp-mini-quiz-question" id="hpMiniQuizTitle">
+            <span class="hp-mini-quiz-question-main">
+                同じ23杯<span class="hp-mini-quiz-question-note">（ボトル1本分）</span>
+            </span>
+            <span class="hp-mini-quiz-question-sub">家で楽しむなら？</span>
+        </h2>
+
+        <div class="hp-mini-quiz-compare">
+
+            <div class="hp-mini-quiz-side">
+                <span class="hp-mini-quiz-label">HOME（家飲み）</span>
+                <strong class="hp-mini-quiz-price">¥？？？</strong>
+            </div>
+
+            <div class="hp-mini-quiz-side">
+                <span class="hp-mini-quiz-label">OUT（お店）</span>
+                <strong class="hp-mini-quiz-price">¥27,600</strong>
+            </div>
+
+        </div>
+
+        <button type="button" class="hp-demo-answer-button" id="hpDemoAnswerButton">
+            答えを見てみる <span>→</span>
+        </button>
+
+        <p class="hp-demo-condition">
+            <strong>デモ条件：</strong> ¥5,000 / 700ml / 30ml / ¥1,200
+        </p>
+
+    </section>
+
+
+    <!-- =========================
+         INPUT
+    ========================== -->
+
+    <section class="input-card">
+
+        <div class="section-title">
+
+            <h2>INPUT</h2>
+
+            <span>条件を入力してください</span>
+
+        </div>
+
+
+        <div class="input-list">
+
+
+            <!-- ボトル価格 -->
+
+            <div class="compact-input-row">
+
+                <div class="compact-icon">
+
+                    <svg viewBox="0 0 32 40" aria-hidden="true">
+
+                        <path
+                            d="
+                                M12 3
+                                L20 3
+                                L20 10
+                                Q20 13 23 15
+                                L25 18
+                                Q27 20 27 24
+                                L27 34
+                                Q27 38 23 39
+                                L9 39
+                                Q5 38 5 34
+                                L5 24
+                                Q5 20 7 18
+                                L9 15
+                                Q12 13 12 10
+                                Z
+                            "
+                        />
+
+                        <path
+                            class="icon-accent"
+                            d="M8 29 Q16 31 24 29"
+                        />
+
+                    </svg>
+
+                </div>
+
+
+                <label for="bottlePrice">
+                    ボトル価格
+                </label>
+
+
+                <div class="compact-control">
+
+                    <input
+                        type="number"
+                        id="bottlePrice"
+                        value="5000"
+                        min="1"
+                        inputmode="numeric"
+                    >
+
+                    <span>円</span>
+
+                </div>
+
+            </div>
+
+
+            <!-- ボトル容量 -->
+
+            <div class="compact-input-row compact-input-with-quick">
+
+                <div class="compact-icon">
+
+                    <svg viewBox="0 0 32 40" aria-hidden="true">
+
+                        <path d="M10 3 L22 3"></path>
+                        <path d="M10 3 L10 35"></path>
+                        <path d="M22 3 L22 35"></path>
+                        <path d="M7 38 L25 38"></path>
+                        <path d="M14 10 L20 10"></path>
+                        <path d="M14 17 L20 17"></path>
+                        <path d="M14 24 L20 24"></path>
+
+                        <path
+                            class="icon-accent"
+                            d="M12 30 L12 36 L20 36 L20 27"
+                        />
+
+                    </svg>
+
+                </div>
+
+
+                <label for="bottleVolume">
+                    ボトル容量
+                </label>
+
+
+                <div class="compact-control">
+
+                    <input
+                        type="number"
+                        id="bottleVolume"
+                        value="700"
+                        min="1"
+                        inputmode="numeric"
+                    >
+
+                    <span>ml</span>
+
+                </div>
+
+
+                <div class="quick-buttons quick-four">
+
+                    <button
+                        type="button"
+                        data-target="bottleVolume"
+                        data-value="500"
+                    >
+                        500
+                    </button>
+
+                    <button
+                        type="button"
+                        data-target="bottleVolume"
+                        data-value="700"
+                        class="active"
+                    >
+                        700
+                    </button>
+
+                    <button
+                        type="button"
+                        data-target="bottleVolume"
+                        data-value="750"
+                    >
+                        750
+                    </button>
+
+                    <button
+                        type="button"
+                        data-target="bottleVolume"
+                        data-value="1000"
+                    >
+                        1000
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- 1杯の酒量 -->
+
+            <div class="compact-input-row compact-input-with-quick">
+
+                <div class="compact-icon">
+
+                    <svg viewBox="0 0 32 40" aria-hidden="true">
+
+                        <path
+                            d="
+                                M7 5
+                                L25 5
+                                L23 25
+                                Q22 31 16 32
+                                Q10 31 9 25
+                                Z
+                            "
+                        />
+
+                        <path d="M16 32 L16 37"></path>
+                        <path d="M10 38 L22 38"></path>
+
+                        <path
+                            class="icon-accent"
+                            d="M10 22 Q16 24 22 22"
+                        />
+
+                    </svg>
+
+                </div>
+
+
+                <label for="pourVolume">
+                    1杯の酒量
+                </label>
+
+
+                <div class="compact-control">
+
+                    <input
+                        type="number"
+                        id="pourVolume"
+                        value="30"
+                        min="1"
+                        inputmode="numeric"
+                    >
+
+                    <span>ml</span>
+
+                </div>
+
+
+                <div class="quick-buttons quick-five">
+
+                    <button type="button" data-target="pourVolume" data-value="15">15</button>
+                    <button type="button" data-target="pourVolume" data-value="20">20</button>
+
+                    <button
+                        type="button"
+                        data-target="pourVolume"
+                        data-value="30"
+                        class="active"
+                    >
+                        30
+                    </button>
+
+                    <button type="button" data-target="pourVolume" data-value="45">45</button>
+                    <button type="button" data-target="pourVolume" data-value="60">60</button>
+
+                </div>
+
+            </div>
+
+
+            <!-- お店価格 -->
+
+            <div class="compact-input-row">
+
+                <div class="compact-icon">
+
+                    <svg viewBox="0 0 32 40" aria-hidden="true">
+
+                        <path d="M5 14 L27 14"></path>
+
+                        <path
+                            d="
+                                M7 14
+                                L5 20
+                                Q5 23 8 23
+                                Q11 23 12 20
+                                Q13 23 16 23
+                                Q19 23 20 20
+                                Q21 23 24 23
+                                Q27 23 27 20
+                                L25 14
+                            "
+                        />
+
+                        <path d="M8 23 L8 36"></path>
+                        <path d="M24 23 L24 36"></path>
+                        <path d="M7 36 L25 36"></path>
+                        <path d="M13 36 L13 27"></path>
+                        <path d="M19 36 L19 27"></path>
+
+                        <path
+                            class="icon-accent"
+                            d="M5 14 L9 8 L23 8 L27 14"
+                        />
+
+                    </svg>
+
+                </div>
+
+
+                <label for="shopPrice">
+                    お店価格
+                </label>
+
+
+                <div class="compact-control">
+
+                    <input
+                        type="number"
+                        id="shopPrice"
+                        value="1200"
+                        min="1"
+                        inputmode="numeric"
+                    >
+
+                    <span>円/杯</span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <button type="button" id="calculateButton">
+            この一杯で比べる
+            <span>→</span>
+        </button>
+
+
+        <button type="button" id="clearButton">
+            入力をクリア
+        </button>
+
+    </section>
+
+
+    <!-- =========================
+         RESULT
+    ========================== -->
+
+    <section class="result-section" id="resultSection">
+
+        <div class="result-heading">
+
+            <h2>RESULT</h2>
+
+            <span>計算結果</span>
+
+        </div>
+
+
+        <div class="cost-card">
+
+
+            <!-- COST PER POUR -->
+
+            <div class="result-block-heading">
+
+                <h3>COST PER POUR</h3>
+
+                <p>家で楽しむ一杯の目安</p>
+
+            </div>
+
+
+            <div class="cost-visual">
+
+                <div class="whisky-glass">
+
+                    <svg viewBox="0 0 120 120" aria-hidden="true">
+
+                        <ellipse cx="60" cy="27" rx="35" ry="7" />
+
+                        <path
+                            d="
+                                M25 27
+                                L32 98
+                                Q33 106 42 107
+                                L78 107
+                                Q87 106 88 98
+                                L95 27
+                            "
+                        />
+
+                        <path
+                            class="liquid"
+                            d="M31 72 Q60 78 89 72"
+                        />
+
+                        <path
+                            class="ice"
+                            d="M39 53 L54 44 L65 57 L51 68 Z"
+                        />
+
+                        <path
+                            class="ice"
+                            d="M62 66 L76 55 L85 69 L71 81 Z"
+                        />
+
+                        <path d="M33 96 Q60 102 87 96" />
+
+                    </svg>
+
+                </div>
+
+
+                <div class="price-connector">
+
+                    <span class="connector-stroke"></span>
+
+                    <span class="connector-note">
+                        <span id="pourVolumeResult">0</span>ml / 1杯
+                    </span>
+
+                </div>
+
+
+                <div class="cost-number">
+
+                    <strong>
+                        ¥<span id="homePriceResult">0</span>
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <!-- GRAPH -->
+
+            <div class="graph-group">
+
+                <div class="graph-label">
+
+                    <span class="graph-label-en">HOME</span>
+
+                    <span class="graph-label-jp">家飲み</span>
+
+                </div>
+
+
+                <div class="inline-bar-wrap">
+
+                    <div class="inline-bar-track">
+
+                        <div class="inline-home-fill" id="homeBarFill">
+
+                            <span class="bar-value">
+                                ¥<span id="homeBarValue">0</span>
+                            </span>
+
+                        </div>
+
+
+                        <div class="inline-saving-box" id="savingBarBox">
+
+                            <span class="bar-value">
+                                ¥<span id="savingPerGlassInline">0</span>
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="graph-label graph-label-out">
+
+                    <span class="graph-label-en">OUT</span>
+
+                    <span class="graph-label-jp">お店</span>
+
+                </div>
+
+
+                <div class="inline-bar-wrap">
+
+                    <div class="inline-bar-track">
+
+                        <div class="inline-out-fill" id="shopBarFill">
+
+                            <span class="bar-value">
+                                ¥<span id="shopBarValue">0</span>
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- BY THE BOTTLE -->
+
+            <div class="bottle-section">
+
+                <div class="result-block-heading">
+
+                    <h3>BY THE BOTTLE</h3>
+
+                    <p>ボトル1本で楽しめる目安</p>
+
+                </div>
+
+
+                <div class="bottle-layout">
+
+                    <div class="bottle-visual-area">
+
+                        <div class="bottle-top-row">
+
+                            <div class="bottle-illustration">
+
+                                <svg viewBox="0 0 54 90" aria-hidden="true">
+
+                                    <path
+                                        d="
+                                            M22 7
+                                            L32 7
+                                            L32 19
+                                            Q32 22 35 24
+                                            L40 29
+                                            Q43 32 43 37
+                                            L43 72
+                                            Q43 80 38 83
+                                            Q27 86 16 83
+                                            Q11 80 11 72
+                                            L11 37
+                                            Q11 32 14 29
+                                            L19 24
+                                            Q22 22 22 19
+                                            Z
+                                        "
+                                    />
+
+                                    <path
+                                        class="bottle-liquid"
+                                        d="M14 56 Q27 59.2 40 56"
+                                    />
+
+                                    <path d="M15 76 Q27 79 39 76" />
+
+                                </svg>
+
+                            </div>
+
+
+                            <div class="bottle-count">
+
+                                <div class="bottle-count-formula">
+
+                                    <span id="bottleVolumeFormula">700</span>ml
+
+                                    <span class="formula-symbol">÷</span>
+
+                                    <span id="pourVolumeFormula">30</span>ml
+
+                                    <span class="formula-symbol">=</span>
+
+                                </div>
+
+
+                                <div class="bottle-count-number">
+                                    約<span id="glassesPerBottleResult">0</span>杯
+                                </div>
+
+
+                                <div class="bottle-count-sub">
+                                    ボトル1本で楽しめる杯数
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="glasses-grid" id="glassesGrid"></div>
+
+                    </div>
+
+
+                    <!-- COMPARISON -->
+
+                    <div class="comparison-flow">
+
+                        <div class="comparison-stem"></div>
+
+                        <div class="comparison-caption">
+                            同じ<span id="bottleCompareCount">0</span>杯で比較
+                        </div>
+
+
+                        <div class="comparison-branch">
+
+
+                            <!-- HOME -->
+
+                            <div class="comparison-column">
+
+                                <div class="comparison-icon comparison-home-icon">
+
+                                    <svg viewBox="0 0 64 56" aria-hidden="true">
+
+                                        <path d="M8 27 L32 8 L56 27" />
+
+                                        <path
+                                            d="
+                                                M14 23
+                                                L14 49
+                                                L50 49
+                                                L50 23
+                                            "
+                                        />
+
+                                        <path
+                                            d="
+                                                M44 18
+                                                L44 10
+                                                L49 10
+                                                L49 22
+                                            "
+                                        />
+
+                                        <path
+                                            class="comp-accent"
+                                            d="
+                                                M26 49
+                                                L26 37
+                                                Q26 33 30 33
+                                                L34 33
+                                                Q38 33 38 37
+                                                L38 49
+                                            "
+                                        />
+
+                                        <path
+                                            class="comp-accent"
+                                            d="M19 29 L25 29 L25 35 L19 35 Z"
+                                        />
+
+                                    </svg>
+
+                                </div>
+
+
+                                <div class="comparison-tag home-tag">
+                                    HOME
+                                </div>
+
+
+                                <div class="comparison-sub">
+                                    家飲み
+                                </div>
+
+
+                                <div class="comparison-price">
+                                    ¥<span id="bottleHomeTotal">0</span>
+                                </div>
+
+                            </div>
+
+
+                            <div class="comparison-divider"></div>
+
+
+                            <!-- OUT -->
+
+                            <div class="comparison-column">
+
+                                <div class="comparison-icon comparison-out-icon">
+
+                                    <svg viewBox="0 0 64 56" aria-hidden="true">
+
+                                        <path
+                                            class="comp-accent"
+                                            d="M10 12 L16 5 L48 5 L54 12 Z"
+                                        />
+
+                                        <path d="M20 5 L18 12"></path>
+                                        <path d="M28 5 L27 12"></path>
+                                        <path d="M36 5 L37 12"></path>
+                                        <path d="M44 5 L46 12"></path>
+
+                                        <path d="M20 12 L20 20"></path>
+                                        <path d="M42 12 L42 20"></path>
+
+                                        <path
+                                            class="comp-accent"
+                                            d="M17 22 L23 22 L21 17 L19 17 Z"
+                                        />
+
+                                        <path
+                                            class="comp-accent"
+                                            d="M39 22 L45 22 L43 17 L41 17 Z"
+                                        />
+
+                                        <path d="M12 31 L43 31"></path>
+
+                                        <path d="M18 34 L25 34"></path>
+                                        <path d="M20 34 L18 47"></path>
+                                        <path d="M23 34 L25 47"></path>
+                                        <path d="M17 47 L26 47"></path>
+
+                                        <path d="M31 34 L38 34"></path>
+                                        <path d="M33 34 L31 47"></path>
+                                        <path d="M36 34 L38 47"></path>
+                                        <path d="M30 47 L39 47"></path>
+
+                                        <path
+                                            d="
+                                                M47 27
+                                                L58 27
+                                                L56 38
+                                                Q55 43 52.5 44
+                                                Q50 43 49 38
+                                                Z
+                                            "
+                                        />
+
+                                        <path
+                                            class="comp-accent"
+                                            d="M49 35 Q52.5 37 56 35"
+                                        />
+
+                                        <path d="M52.5 44 L52.5 50"></path>
+                                        <path d="M48 50 L57 50"></path>
+
+                                    </svg>
+
+                                </div>
+
+
+                                <div class="comparison-tag out-tag">
+                                    OUT
+                                </div>
+
+
+                                <div class="comparison-sub">
+                                    お店
+                                </div>
+
+
+                                <div class="comparison-price">
+                                    ¥<span id="bottleShopTotal">0</span>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="comparison-downline"></div>
+
+
+                        <!-- SAVE -->
+
+                        <div class="summary-saving-box">
+
+                            <div class="summary-saving-label">
+
+                                <span>SAVE</span>
+
+                                <small>差額</small>
+
+                            </div>
+
+
+                            <div class="summary-saving-value">
+                                ¥<span id="bottleSavingTotal">0</span>
+                            </div>
+
+                        </div>
+<div class="result-quiz-share-wrap">
+
+                            <button
+                                type="button"
+                                class="result-quiz-share-button"
+                                id="shareQuizInlineButton"
+                            >
+                                QUIZとしてシェアする
+                            </button>
+
+                        </div>
+
+                        <div class="hp-own-flow-wrap">
+                            <button
+                                type="button"
+                                class="hp-own-flow-button"
+                                id="hpOwnPourButton"
+                            >
+                                自分の一杯で比べてみる ↑
+                            </button>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =========================
+             NEXT ENJOYMENT
+        ========================== -->
+
+        <section class="next-enjoyment-section">
+
+            <div class="next-section-kicker">
+
+                <span class="next-kicker-line"></span>
+
+                <div>
+                    <strong>NEXT ENJOYMENT</strong>
+                    <small>次の楽しみ</small>
+                </div>
+
+                <span class="next-kicker-line"></span>
+
+            </div>
+
+
+            <h2 class="next-question">
+                ¥<span id="nextEnjoymentAmount">0</span>から、<br>
+                次の楽しみへ。
+            </h2>
+
+
+            <div class="next-enjoyment-list">
+
+
+                <!-- =====================
+                     01 NEXT BOTTLE
+                ====================== -->
+
+                <div class="next-enjoyment-item">
+
+                    <div class="next-item-art">
+
+                        <svg viewBox="0 0 110 115" aria-hidden="true">
+
+                            <path
+                                d="
+                                    M47 12
+                                    L63 12
+                                    L63 26
+                                    Q63 30 67 33
+                                    L72 38
+                                    Q76 42 76 49
+                                    L76 94
+                                    Q76 103 68 106
+                                    L42 106
+                                    Q34 103 34 94
+                                    L34 49
+                                    Q34 42 38 38
+                                    L43 33
+                                    Q47 30 47 26
+                                    Z
+                                "
+                            />
+
+                            <path d="M45 12 L65 12" />
+
+                            <rect
+                                x="42"
+                                y="51"
+                                width="26"
+                                height="30"
+                                rx="1"
+                            />
+
+                            <path d="M48 61 L62 61" />
+                            <path d="M48 67 L62 67" />
+
+                            <path
+                                class="next-art-accent"
+                                d="M38 86 Q55 89 72 86"
+                            />
+
+                        </svg>
+
+                    </div>
+
+
+                    <div class="next-item-body">
+
+                        <span class="next-item-number">
+                            01
+                        </span>
+
+                        <h3>NEXT BOTTLE</h3>
+
+                        <span class="next-item-rule"></span>
+
+                        <p>
+                            次に飲みたかった一本
+                        </p>
+
+                    </div>
+
+
+                    <div class="next-item-arrow" aria-hidden="true">
+                        →
+                    </div>
+
+                </div>
+
+
+                <!-- =====================
+                     02 GOOD TOOLS
+                     グラス＋デキャンタのみ
+                ====================== -->
+
+                <div class="next-enjoyment-item">
+
+                    <div class="next-item-art">
+
+                        <svg viewBox="0 0 110 115" aria-hidden="true">
+
+                            <!-- STEMMED GLASS -->
+
+                            <path d="M13 24 L42 24" />
+
+                            <path
+                                d="
+                                    M15 24
+                                    L18 56
+                                    Q19 65 27.5 66
+                                    Q36 65 37 56
+                                    L40 24
+                                "
+                            />
+
+                            <path
+                                class="next-art-accent"
+                                d="M18 49 Q27.5 52 37 49"
+                            />
+
+                            <path d="M27.5 66 L27.5 91" />
+
+                            <path d="M19 94 L36 94" />
+
+
+                            <!-- DECANTER -->
+
+                            <path d="M66 23 L81 23" />
+
+                            <path d="M69 23 L69 39" />
+                            <path d="M78 23 L78 39" />
+
+                            <path
+                                d="
+                                    M69 39
+                                    Q69 45 61 52
+                                    Q52 60 51 73
+                                    L51 88
+                                    Q51 97 61 99
+                                    L87 99
+                                    Q97 97 97 88
+                                    L97 73
+                                    Q96 60 87 52
+                                    Q78 45 78 39
+                                "
+                            />
+
+                            <path
+                                class="next-art-accent"
+                                d="M55 82 Q74 87 93 82"
+                            />
+
+                        </svg>
+
+                    </div>
+
+
+                    <div class="next-item-body">
+
+                        <span class="next-item-number">
+                            02
+                        </span>
+
+                        <h3>GOOD TOOLS</h3>
+
+                        <span class="next-item-rule"></span>
+
+                        <p>
+                            気になっていたグラスや道具
+                        </p>
+
+                    </div>
+
+
+                    <div class="next-item-arrow" aria-hidden="true">
+                        →
+                    </div>
+
+                </div>
+
+
+                <!-- =====================
+                     03 ANOTHER HOBBY
+                     植物＋ライトのみ
+                ====================== -->
+
+                <div class="next-enjoyment-item">
+
+                    <div class="next-item-art">
+
+                        <svg viewBox="0 0 110 115" aria-hidden="true">
+
+                            <!-- PLANT (slightly smaller / moved left) -->
+
+                            <path d="M24 93 L24 53" />
+
+                            <path
+                                d="M24 63 C16 60 11 54 8 46"
+                            />
+
+                            <path
+                                d="M24 72 C15 70 9 65 6 58"
+                            />
+
+                            <path
+                                d="M24 60 C31 56 36 50 39 43"
+                            />
+
+                            <path
+                                d="M24 70 C33 67 38 61 42 54"
+                            />
+
+                            <path
+                                d="M24 79 C33 77 39 72 43 66"
+                            />
+
+
+                            <!-- POT -->
+
+                            <path d="M14 83 L33 83" />
+
+                            <path
+                                d="
+                                    M16 83
+                                    L19 102
+                                    L29 102
+                                    L31 83
+                                "
+                            />
+
+
+                            <!-- ARC FLOOR LAMP -->
+
+                            <path d="M93 101 L93 50" />
+
+                            <path
+                                d="
+                                    M93 50
+                                    C93 34 86 24 74 24
+                                    C66 24 60 29 57 36
+                                "
+                            />
+
+                            <path d="M57 36 L57 40" />
+
+                            <path
+                                class="next-art-accent"
+                                d="
+                                    M47 47
+                                    Q57 32 67 47
+                                    Z
+                                "
+                            />
+
+                            <path d="M82 103 L104 103" />
+
+                        </svg>
+
+                    </div>
+
+
+                    <div class="next-item-body">
+
+                        <span class="next-item-number">
+                            03
+                        </span>
+
+                        <h3>ANOTHER HOBBY</h3>
+
+                        <span class="next-item-rule"></span>
+
+                        <p>
+                            部屋を整える。新しい趣味を始める。
+                        </p>
+
+                    </div>
+
+
+                    <div class="next-item-arrow" aria-hidden="true">
+                        →
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </section>
+
+
+    <!-- =========================
+         BONUS GAME / POUR ENTITY
+    ========================== -->
+
+    <section class="bonus-game-section" id="bonusGameSection" aria-labelledby="bonusGameTitle">
+
+        <div class="bonus-game-kicker">BONUS GAME</div>
+        <h2 class="bonus-game-title" id="bonusGameTitle">POUR ENTITY</h2>
+
+        <p class="bonus-game-copy">
+            HOME POUR本編とは別のおまけ。<br>
+            今夜、あなたのそばに現れる“何か”を1体引く。
+        </p>
+
+        <div class="gacha-card-stage" aria-hidden="true">
+            <div class="gacha-back-card one"></div>
+            <div class="gacha-back-card two"></div>
+            <div class="gacha-front-card">
+                <div class="gacha-front-mark">?</div>
+                <small>20 ENTITIES</small>
+            </div>
+        </div>
+
+        <div class="gacha-rarity-line" aria-label="レアリティ">
+            <span>N</span>
+            <span>HN</span>
+            <span>R</span>
+            <span>HR</span>
+            <span>SR</span>
+            <span>SSR</span>
+        </div>
+
+        <button type="button" class="gacha-draw-button" id="gachaDrawButton">
+            DRAW ONE
+        </button>
+
+        <p class="gacha-trial-note">
+            全20体予定 / キャラクター設定は順次追加。現在は試作のため何度でも引けます。
+        </p>
+
+    </section>
+
+</main>
+
+
+
+
+
+<!-- =========================
+     BONUS GAME / GACHA MODAL
+========================== -->
+
+<div class="gacha-modal" id="gachaModal" aria-hidden="true">
+    <div class="gacha-panel" role="dialog" aria-modal="true" aria-labelledby="gachaResultCode">
+
+        <button type="button" class="gacha-close" id="gachaClose" aria-label="閉じる">×</button>
+
+        <div class="gacha-result-card" id="gachaResultCard">
+
+            <div class="gacha-reveal-mask" aria-hidden="true">
+                <span>DRAWING...</span>
+            </div>
+
+            <div class="gacha-result-top">
+                <div class="gacha-result-label">POUR ENTITY / RARITY</div>
+                <div class="gacha-rarity" id="gachaRarity">R</div>
+                <div class="gacha-rarity-rate" id="gachaRarityRate">18%</div>
+            </div>
+
+            <div class="gacha-entity-art" id="gachaEntityArt" aria-hidden="true"></div>
+
+            <div class="gacha-entity-code" id="gachaResultCode">ENTITY 01</div>
+
+            <p class="gacha-entity-temp">
+                <strong>ABILITY FILE</strong>
+                <span id="gachaTempCopy">能力名・設定・台詞はこれから1体ずつ詰めていく。</span>
+            </p>
+
+        </div>
+
+        <div class="gacha-actions">
+            <button type="button" class="gacha-redraw" id="gachaRedrawButton">もう一度引く</button>
+            <button type="button" class="gacha-share" id="gachaShareButton">結果をシェア</button>
+        </div>
+
+        <div class="gacha-status" id="gachaStatus" aria-live="polite"></div>
+
+    </div>
+</div>
+
+
+<!-- =========================
+     SHARE QUIZ MODAL
+========================== -->
+
+<div
+    class="share-quiz-modal"
+    id="shareQuizModal"
+    aria-hidden="true"
+>
+
+    <div
+        class="share-quiz-panel"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="shareQuizTitle"
+    >
+
+        <button
+            type="button"
+            class="share-quiz-close"
+            id="shareQuizClose"
+            aria-label="閉じる"
+        >
+            ×
+        </button>
+
+        <h2
+            class="share-quiz-panel-title"
+            id="shareQuizTitle"
+        >
+            SHARE QUIZ
+        </h2>
+
+
+        <div
+            class="share-quiz-card"
+            id="shareQuizCard"
+        >
+
+            <h3 class="share-card-brand">
+                HOME POUR
+            </h3>
+
+            <p class="share-card-brand-sub">
+                家飲みと、次の楽しみ。
+            </p>
+
+
+            <div
+                class="share-card-visual"
+                aria-hidden="true"
+            >
+
+                <svg
+                    class="share-bottle-icon"
+                    viewBox="0 0 50 82"
+                >
+                    <path d="M20 5 L30 5 L30 18 Q30 22 34 25 L38 30 Q41 33 41 39 L41 70 Q41 76 35 78 L15 78 Q9 76 9 70 L9 39 Q9 33 12 30 L16 25 Q20 22 20 18 Z" />
+                    <path class="share-accent" d="M12 58 Q25 61 38 58" />
+                    <rect x="16" y="34" width="18" height="18" rx="1" />
+                </svg>
+
+                <svg
+                    class="share-glass-icon"
+                    viewBox="0 0 70 56"
+                >
+                    <ellipse cx="35" cy="9" rx="23" ry="4" />
+                    <path d="M12 9 L16 47 Q17 52 24 53 L46 53 Q53 52 54 47 L58 9" />
+                    <path class="share-accent" d="M16 35 Q35 39 54 35" />
+                    <path d="M24 25 L33 18 L41 27 L32 34 Z" />
+                    <path d="M39 34 L48 26 L54 35 L45 42 Z" />
+                </svg>
+
+            </div>
+
+
+            <div class="share-card-question">
+                <span class="share-card-question-line">
+                    同じ<span id="shareQuizCount">0</span>杯<span class="share-card-question-note">（ボトル1本分）</span>
+                </span>
+                <span class="share-card-question-line">
+                    家で楽しむなら？
+                </span>
+            </div>
+
+
+            <div class="share-card-comparison">
+
+                <div class="share-card-side home">
+                    <span>HOME（家飲み）</span>
+                    <strong>¥？？？</strong>
+                </div>
+
+                <div class="share-card-side out">
+                    <span>OUT（お店）</span>
+                    <strong><span id="shareQuizOut">¥0</span></strong>
+                </div>
+
+            </div>
+
+
+            <div
+                class="share-card-options"
+                id="shareQuizOptions"
+            ></div>
+
+
+            <a
+                class="share-card-answer-link"
+                id="shareQuizAnswerLink"
+                href="#"
+                target="_blank"
+                rel="noopener"
+            >
+                答えを見る → HOME POUR
+            </a>
+
+        </div>
+
+
+        <div class="share-quiz-actions">
+
+            <button
+                type="button"
+                class="share-quiz-action"
+                id="shareQuizAction"
+            >
+                このクイズをシェア
+            </button>
+
+        </div>
+
+        <p class="share-quiz-note">
+            正解はシェア画像には表示されません。リンクを開くと同じ条件で結果を確認できます。
+        </p>
+
+        <div
+            class="share-quiz-status"
+            id="shareQuizStatus"
+            aria-live="polite"
+        ></div>
+
+    </div>
+
+</div>
+
+
+
+<div class="fixed-utility-buttons">
+
+    <button
+        type="button"
+        class="gacha-float-button"
+        id="gachaFloatButton"
+        aria-label="おまけガチャを引く"
+        title="おまけガチャを引く"
+    >
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M8.2 4.7 A6.1 6.1 0 0 1 16.8 13.3"></path>
+            <path d="M15.8 19.3 A6.1 6.1 0 0 1 7.2 10.7"></path>
+            <path d="M8.2 4.7 L16.8 13.3"></path>
+            <path d="M7.2 10.7 L15.8 19.3"></path>
+            <circle cx="8.1" cy="7.8" r="1.2"></circle>
+            <circle cx="15.9" cy="16.2" r="1.2"></circle>
+        </svg>
+        <span class="utility-label">GACHA</span>
+    </button>
+
+
+    <button
+        type="button"
+        class="share-button"
+        id="shareButton"
+        aria-label="クイズとしてシェア"
+        title="クイズとしてシェア"
+    >
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="18" cy="5" r="2.2"></circle>
+            <circle cx="6" cy="12" r="2.2"></circle>
+            <circle cx="18" cy="19" r="2.2"></circle>
+            <path d="M8 11 L15.8 6.3"></path>
+            <path d="M8 13 L15.8 17.7"></path>
+        </svg>
+        <span class="utility-label">SHARE</span>
+    </button>
+
+
+    <button
+        type="button"
+        class="clear-input-button"
+        id="clearInputFloatButton"
+        aria-label="入力内容をクリア"
+        title="入力内容をクリア"
+    >
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M6 15.8 L13.4 8.4"></path>
+            <path d="M13.4 8.4 L17.6 12.6"></path>
+            <path d="M4.6 17.2 L10.2 22.8"></path>
+            <path d="M10.2 22.8 L19.2 13.8"></path>
+            <path d="M4.6 17.2 L8.2 13.6"></path>
+            <path d="M14.7 20.2 H20.2"></path>
+        </svg>
+        <span class="utility-label">CLEAR</span>
+    </button>
+
+
+    <button
+        type="button"
+        class="back-to-pour"
+        id="backToPourButton"
+        aria-label="ページ上部へ戻る"
+        title="ページ上部へ戻る"
+    >
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 19 V6"></path>
+            <path d="M7.5 10.5 L12 6 L16.5 10.5"></path>
+            <path d="M6 21 H18"></path>
+        </svg>
+        <span class="utility-label">BACK</span>
+    </button>
+
+</div>
+
+
+<script src="script.js"></script>
+
+
+<script>
+    /* =========================
+       FIXED BUTTONS
+    ========================== */
+
+    const hpBackToPourButton = document.getElementById("backToPourButton");
+    const hpGachaFloatButton = document.getElementById("gachaFloatButton");
+    const hpShareButton = document.getElementById("shareButton");
+    const hpClearInputFloatButton = document.getElementById("clearInputFloatButton");
+    const hpShareQuizInlineButton = document.getElementById("shareQuizInlineButton");
+    const hpDemoAnswerButton = document.getElementById("hpDemoAnswerButton");
+    const hpOwnPourButton = document.getElementById("hpOwnPourButton");
+    const hpInputCard = document.querySelector(".input-card");
+    const hpResultSection = document.getElementById("resultSection");
+
+
+    function hpSetDemoValues() {
+        const demoValues = {
+            bottlePrice: "5000",
+            bottleVolume: "700",
+            pourVolume: "30",
+            shopPrice: "1200"
+        };
+
+        Object.entries(demoValues).forEach(([id, value]) => {
+            const input = document.getElementById(id);
+            if (input) input.value = value;
+        });
+
+        document.querySelectorAll(".quick-buttons button").forEach((button) => {
+            const target = button.dataset.target;
+            const value = button.dataset.value;
+            button.classList.toggle(
+                "active",
+                demoValues[target] === value
+            );
+        });
+    }
+
+
+    hpDemoAnswerButton.addEventListener("click", () => {
+        hpSetDemoValues();
+
+        const calculateButton = document.getElementById("calculateButton");
+        calculateButton.click();
+
+        window.setTimeout(() => {
+            hpResultSection.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
+        }, 120);
+    });
+
+
+    hpOwnPourButton.addEventListener("click", () => {
+        hpInputCard.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+
+        window.setTimeout(() => {
+            document.getElementById("bottlePrice").focus({ preventScroll: true });
+            document.getElementById("bottlePrice").select();
+        }, 500);
+    });
+
+
+    function hpUpdateBackToPourButton() {
+        hpBackToPourButton.classList.toggle(
+            "is-visible",
+            window.scrollY > 420
+        );
+    }
+
+
+    window.addEventListener(
+        "scroll",
+        hpUpdateBackToPourButton,
+        { passive: true }
+    );
+
+
+    hpClearInputFloatButton.addEventListener("click", () => {
+        const clearButton = document.getElementById("clearButton");
+        if (clearButton) clearButton.click();
+    });
+
+
+    hpBackToPourButton.addEventListener("click", () => {
+        window.scrollTo({
+            top: 0,
+            behavior: "smooth"
+        });
+    });
+
+
+    hpUpdateBackToPourButton();
+
+
+
+
+    /* =========================
+       BONUS GAME / POUR ENTITY
+    ========================== */
+
+    const hpGachaDrawButton = document.getElementById("gachaDrawButton");
+    const hpGachaModal = document.getElementById("gachaModal");
+    const hpGachaClose = document.getElementById("gachaClose");
+    const hpGachaResultCard = document.getElementById("gachaResultCard");
+    const hpGachaRarity = document.getElementById("gachaRarity");
+    const hpGachaRarityRate = document.getElementById("gachaRarityRate");
+    const hpGachaResultCode = document.getElementById("gachaResultCode");
+    const hpGachaEntityArt = document.getElementById("gachaEntityArt");
+    const hpGachaTempCopy = document.getElementById("gachaTempCopy");
+    const hpGachaRedrawButton = document.getElementById("gachaRedrawButton");
+    const hpGachaShareButton = document.getElementById("gachaShareButton");
+    const hpGachaStatus = document.getElementById("gachaStatus");
+
+    const hpGachaRarities = [
+        { rarity: "N",   rate: 34, ids: [1, 2, 3, 4, 5] },
+        { rarity: "HN",  rate: 24, ids: [6, 7, 8, 9] },
+        { rarity: "R",   rate: 18, ids: [10, 11, 12, 13] },
+        { rarity: "HR",  rate: 12, ids: [14, 15, 16] },
+        { rarity: "SR",  rate: 8,  ids: [17, 18] },
+        { rarity: "SSR", rate: 4,  ids: [19, 20] }
+    ];
+
+    let hpGachaCurrent = null;
+
+    function hpGetGachaArt(entityId, rarity) {
+        const variant = ((entityId - 1) % 5) + 1;
+        const aura = ["SR", "SSR"].includes(rarity)
+            ? '<path class="entity-accent" d="M31 160 C12 125 17 77 39 45 M149 160 C168 125 163 77 141 45" />'
+            : '';
+
+        const variants = {
+            1: `
+                <ellipse class="entity-main" cx="90" cy="40" rx="24" ry="28" />
+                <path class="entity-main" d="M67 68 C53 80 51 108 57 151 L69 191" />
+                <path class="entity-main" d="M113 68 C127 80 129 108 123 151 L111 191" />
+                <path class="entity-main" d="M67 68 C76 75 104 75 113 68" />
+                <path class="entity-main" d="M63 90 L42 126 L54 136 L72 110" />
+                <path class="entity-main" d="M117 90 L138 126 L126 136 L108 110" />
+                <path class="entity-detail" d="M77 33 L103 47 M77 47 L103 33" />
+                <circle class="entity-accent" cx="90" cy="98" r="12" />
+                ${aura}`,
+            2: `
+                <path class="entity-main" d="M90 15 L116 34 L108 65 L126 86 L115 153 L103 193" />
+                <path class="entity-main" d="M90 15 L64 34 L72 65 L54 86 L65 153 L77 193" />
+                <path class="entity-main" d="M72 65 Q90 76 108 65" />
+                <path class="entity-main" d="M57 92 L31 118 L46 132 L68 112" />
+                <path class="entity-main" d="M123 92 L149 118 L134 132 L112 112" />
+                <path class="entity-detail" d="M76 37 L90 27 L104 37 L96 51 L84 51 Z" />
+                <path class="entity-accent" d="M82 96 L98 96 L94 124 L86 124 Z" />
+                ${aura}`,
+            3: `
+                <circle class="entity-main" cx="90" cy="42" r="25" />
+                <path class="entity-main" d="M63 72 Q90 60 117 72 L124 148 L112 192" />
+                <path class="entity-main" d="M63 72 L56 148 L68 192" />
+                <path class="entity-main" d="M62 87 L34 105 L42 122 L70 107" />
+                <path class="entity-main" d="M118 87 L146 105 L138 122 L110 107" />
+                <path class="entity-detail" d="M71 38 H109 M75 48 H105" />
+                <path class="entity-accent" d="M72 79 C90 91 108 79 108 79" />
+                ${aura}`,
+            4: `
+                <path class="entity-main" d="M62 45 Q90 7 118 45 L106 68 L119 91 L111 153 L102 193" />
+                <path class="entity-main" d="M62 45 L74 68 L61 91 L69 153 L78 193" />
+                <path class="entity-main" d="M62 92 L29 121 L43 136 L72 111" />
+                <path class="entity-main" d="M118 92 L151 121 L137 136 L108 111" />
+                <path class="entity-detail" d="M73 43 Q90 56 107 43" />
+                <circle class="entity-accent" cx="90" cy="111" r="15" />
+                <path class="entity-accent" d="M82 111 H98 M90 103 V119" />
+                ${aura}`,
+            5: `
+                <path class="entity-main" d="M90 14 C111 22 121 38 116 57 C109 72 109 80 121 94 L115 154 L103 193" />
+                <path class="entity-main" d="M90 14 C69 22 59 38 64 57 C71 72 71 80 59 94 L65 154 L77 193" />
+                <path class="entity-main" d="M61 94 L34 128 L49 140 L71 112" />
+                <path class="entity-main" d="M119 94 L146 128 L131 140 L109 112" />
+                <path class="entity-detail" d="M77 39 C85 31 95 31 103 39 M78 50 C86 56 94 56 102 50" />
+                <path class="entity-accent" d="M78 89 Q90 78 102 89 L98 118 Q90 127 82 118 Z" />
+                ${aura}`
+        };
+
+        return `<svg viewBox="0 0 180 210" aria-hidden="true">${variants[variant]}</svg>`;
+    }
+
+    function hpPickGachaEntity() {
+        const roll = Math.random() * 100;
+        let cursor = 0;
+        let chosenTier = hpGachaRarities[0];
+
+        for (const tier of hpGachaRarities) {
+            cursor += tier.rate;
+            if (roll < cursor) {
+                chosenTier = tier;
+                break;
+            }
+        }
+
+        const entityId = chosenTier.ids[
+            Math.floor(Math.random() * chosenTier.ids.length)
+        ];
+
+        return {
+            id: entityId,
+            rarity: chosenTier.rarity,
+            rate: chosenTier.rate
+        };
+    }
+
+    function hpRenderGachaResult(result) {
+        hpGachaCurrent = result;
+        hpGachaRarity.textContent = result.rarity;
+        hpGachaRarityRate.textContent = `RARITY RATE ${result.rate}%`;
+        hpGachaResultCode.textContent = `ENTITY ${String(result.id).padStart(2, "0")}`;
+        hpGachaEntityArt.innerHTML = hpGetGachaArt(result.id, result.rarity);
+        hpGachaTempCopy.textContent = "能力名・設定・台詞はこれから1体ずつ詰めていく。";
+        hpGachaStatus.textContent = "";
+    }
+
+    function hpDrawGacha() {
+        hpGachaModal.classList.add("is-open");
+        hpGachaModal.setAttribute("aria-hidden", "false");
+        document.body.classList.add("gacha-modal-open");
+        hpGachaResultCard.classList.add("is-drawing");
+        hpGachaStatus.textContent = "";
+
+        const result = hpPickGachaEntity();
+
+        window.setTimeout(() => {
+            hpRenderGachaResult(result);
+            hpGachaResultCard.classList.remove("is-drawing");
+        }, 620);
+    }
+
+    function hpCloseGacha() {
+        hpGachaModal.classList.remove("is-open");
+        hpGachaModal.setAttribute("aria-hidden", "true");
+        document.body.classList.remove("gacha-modal-open");
+    }
+
+    hpGachaDrawButton.addEventListener("click", hpDrawGacha);
+    hpGachaFloatButton.addEventListener("click", hpDrawGacha);
+    hpGachaRedrawButton.addEventListener("click", hpDrawGacha);
+    hpGachaClose.addEventListener("click", hpCloseGacha);
+
+    hpGachaModal.addEventListener("click", (event) => {
+        if (event.target === hpGachaModal) hpCloseGacha();
+    });
+
+    hpGachaShareButton.addEventListener("click", async () => {
+        if (!hpGachaCurrent) return;
+
+        const text = [
+            "HOME POUR / POUR ENTITY",
+            `${hpGachaCurrent.rarity}  ENTITY ${String(hpGachaCurrent.id).padStart(2, "0")}`,
+            "今夜の1体を引いた。",
+            "#HOMEPOUR #POURENTITY"
+        ].join("\n");
+
+        const shareData = {
+            title: "HOME POUR / POUR ENTITY",
+            text,
+            url: window.location.href.split("?")[0]
+        };
+
+        try {
+            if (navigator.share) {
+                await navigator.share(shareData);
+                hpGachaStatus.textContent = "";
+                return;
+            }
+
+            await navigator.clipboard.writeText(`${text}\n${shareData.url}`);
+            hpGachaStatus.textContent = "結果とリンクをコピーしました。";
+        } catch (error) {
+            if (error && error.name === "AbortError") return;
+            hpGachaStatus.textContent = "シェアできませんでした。";
+        }
+    });
+
+
+    /* =========================
+       SHARE QUIZ
+    ========================== */
+
+    const hpQuizModal = document.getElementById("shareQuizModal");
+    const hpQuizClose = document.getElementById("shareQuizClose");
+    const hpQuizAction = document.getElementById("shareQuizAction");
+    const hpQuizOptions = document.getElementById("shareQuizOptions");
+    const hpQuizCount = document.getElementById("shareQuizCount");
+    const hpQuizOut = document.getElementById("shareQuizOut");
+    const hpQuizAnswerLink = document.getElementById("shareQuizAnswerLink");
+    const hpQuizStatus = document.getElementById("shareQuizStatus");
+
+
+    let hpQuizState = null;
+
+
+    function hpFormatYen(value) {
+        return Math.round(value).toLocaleString("ja-JP");
+    }
+
+
+    function hpGetCurrentPourData() {
+        const bottlePrice = Number(
+            document.getElementById("bottlePrice").value
+        );
+
+        const bottleVolume = Number(
+            document.getElementById("bottleVolume").value
+        );
+
+        const pourVolume = Number(
+            document.getElementById("pourVolume").value
+        );
+
+        const shopPrice = Number(
+            document.getElementById("shopPrice").value
+        );
+
+        if (
+            !bottlePrice ||
+            !bottleVolume ||
+            !pourVolume ||
+            !shopPrice ||
+            bottlePrice <= 0 ||
+            bottleVolume <= 0 ||
+            pourVolume <= 0 ||
+            shopPrice <= 0
+        ) {
+            return null;
+        }
+
+        const count = Math.floor(
+            bottleVolume / pourVolume
+        );
+
+        if (count <= 0) {
+            return null;
+        }
+
+        return {
+            bottlePrice,
+            bottleVolume,
+            pourVolume,
+            shopPrice,
+            count,
+            outTotal: count * shopPrice
+        };
+    }
+
+
+    function hpGetQuizStep(correct) {
+        let unit = 100;
+
+        if (correct >= 30000) {
+            unit = 1000;
+        } else if (correct >= 10000) {
+            unit = 500;
+        }
+
+        return Math.max(
+            unit,
+            Math.round((correct * 0.2) / unit) * unit
+        );
+    }
+
+
+    function hpShuffle(array) {
+        const copied = [...array];
+
+        for (let i = copied.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [copied[i], copied[j]] = [copied[j], copied[i]];
+        }
+
+        return copied;
+    }
+
+
+    function hpBuildQuizChoices(correct) {
+        const step = hpGetQuizStep(correct);
+
+        const patterns = [
+            [-1, 0, 1, 2],
+            [-2, -1, 0, 1],
+            [-1, 0, 2, 3],
+            [-2, 0, 1, 2]
+        ];
+
+        let offsets = patterns[
+            Math.floor(Math.random() * patterns.length)
+        ];
+
+        let values = offsets.map(
+            (offset) => correct + (step * offset)
+        );
+
+        while (Math.min(...values) <= 0) {
+            offsets = offsets.map((offset) => offset + 1);
+            values = offsets.map(
+                (offset) => correct + (step * offset)
+            );
+        }
+
+        return hpShuffle(values);
+    }
+
+
+    function hpBuildAnswerUrl(data) {
+        const url = new URL(window.location.href);
+
+        url.search = "";
+        url.hash = "";
+
+        url.searchParams.set("bp", data.bottlePrice);
+        url.searchParams.set("bv", data.bottleVolume);
+        url.searchParams.set("pv", data.pourVolume);
+        url.searchParams.set("sp", data.shopPrice);
+        url.searchParams.set("quiz", "1");
+
+        return url.toString();
+    }
+
+
+    function hpRenderQuiz(regenerate = false) {
+        const data = hpGetCurrentPourData();
+
+        if (!data) {
+            alert("先に条件を入力して計算してください。");
+            return false;
+        }
+
+        if (
+            !hpQuizState ||
+            regenerate
+        ) {
+            hpQuizState = {
+                ...data,
+                choices: hpBuildQuizChoices(data.bottlePrice),
+                answerUrl: hpBuildAnswerUrl(data)
+            };
+        } else {
+            const changed =
+                hpQuizState.bottlePrice !== data.bottlePrice ||
+                hpQuizState.bottleVolume !== data.bottleVolume ||
+                hpQuizState.pourVolume !== data.pourVolume ||
+                hpQuizState.shopPrice !== data.shopPrice;
+
+            if (changed) {
+                hpQuizState = {
+                    ...data,
+                    choices: hpBuildQuizChoices(data.bottlePrice),
+                    answerUrl: hpBuildAnswerUrl(data)
+                };
+            }
+        }
+
+        hpQuizCount.textContent = hpFormatYen(hpQuizState.count);
+        hpQuizOut.textContent = `¥${hpFormatYen(hpQuizState.outTotal)}`;
+        hpQuizAnswerLink.href = hpQuizState.answerUrl;
+
+        const letters = ["A", "B", "C", "D"];
+
+        hpQuizOptions.innerHTML = hpQuizState.choices
+            .map((value, index) => `
+                <div class="share-card-option">
+                    <b>${letters[index]}.</b>
+                    <span>¥${hpFormatYen(value)}</span>
+                </div>
+            `)
+            .join("");
+
+        hpQuizStatus.textContent = "";
+
+        return true;
+    }
+
+
+    function hpOpenQuizModal() {
+        if (!hpRenderQuiz(false)) {
+            return;
+        }
+
+        hpQuizModal.classList.add("is-open");
+        hpQuizModal.setAttribute("aria-hidden", "false");
+        document.body.classList.add("quiz-modal-open");
+
+        hpQuizClose.focus();
+    }
+
+
+    function hpCloseQuizModal() {
+        hpQuizModal.classList.remove("is-open");
+        hpQuizModal.setAttribute("aria-hidden", "true");
+        document.body.classList.remove("quiz-modal-open");
+
+        if (hpShareQuizInlineButton) {
+            hpShareQuizInlineButton.focus();
+        }
+    }
+
+
+    hpShareButton.addEventListener(
+        "click",
+        hpOpenQuizModal
+    );
+
+
+    hpShareQuizInlineButton.addEventListener(
+        "click",
+        hpOpenQuizModal
+    );
+
+
+    hpQuizClose.addEventListener(
+        "click",
+        hpCloseQuizModal
+    );
+
+
+    hpQuizModal.addEventListener(
+        "click",
+        (event) => {
+            if (event.target === hpQuizModal) {
+                hpCloseQuizModal();
+            }
+        }
+    );
+
+
+    document.addEventListener(
+        "keydown",
+        (event) => {
+            if (
+                event.key === "Escape" &&
+                hpQuizModal.classList.contains("is-open")
+            ) {
+                hpCloseQuizModal();
+            }
+        }
+    );
+
+
+    /* =========================
+       SHARE CARD CANVAS
+    ========================== */
+
+    function hpCanvasRoundedRect(
+        ctx,
+        x,
+        y,
+        width,
+        height,
+        radius
+    ) {
+        const r = Math.min(radius, width / 2, height / 2);
+
+        ctx.beginPath();
+        ctx.moveTo(x + r, y);
+        ctx.arcTo(x + width, y, x + width, y + height, r);
+        ctx.arcTo(x + width, y + height, x, y + height, r);
+        ctx.arcTo(x, y + height, x, y, r);
+        ctx.arcTo(x, y, x + width, y, r);
+        ctx.closePath();
+    }
+
+
+    function hpDrawBottle(ctx, x, y, scale) {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.scale(scale, scale);
+
+        ctx.strokeStyle = "#322d27";
+        ctx.lineWidth = 2.4;
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+
+        ctx.beginPath();
+        ctx.moveTo(20, 5);
+        ctx.lineTo(30, 5);
+        ctx.lineTo(30, 18);
+        ctx.quadraticCurveTo(30, 22, 34, 25);
+        ctx.lineTo(38, 30);
+        ctx.quadraticCurveTo(41, 33, 41, 39);
+        ctx.lineTo(41, 70);
+        ctx.quadraticCurveTo(41, 76, 35, 78);
+        ctx.lineTo(15, 78);
+        ctx.quadraticCurveTo(9, 76, 9, 70);
+        ctx.lineTo(9, 39);
+        ctx.quadraticCurveTo(9, 33, 12, 30);
+        ctx.lineTo(16, 25);
+        ctx.quadraticCurveTo(20, 22, 20, 18);
+        ctx.closePath();
+        ctx.stroke();
+
+        ctx.strokeStyle = "#ad6d27";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(12, 58);
+        ctx.quadraticCurveTo(25, 61, 38, 58);
+        ctx.stroke();
+
+        ctx.restore();
+    }
+
+
+    function hpDrawGlass(ctx, x, y, scale) {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.scale(scale, scale);
+
+        ctx.strokeStyle = "#322d27";
+        ctx.lineWidth = 2.4;
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+
+        ctx.beginPath();
+        ctx.ellipse(35, 9, 23, 4, 0, 0, Math.PI * 2);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(12, 9);
+        ctx.lineTo(16, 47);
+        ctx.quadraticCurveTo(17, 52, 24, 53);
+        ctx.lineTo(46, 53);
+        ctx.quadraticCurveTo(53, 52, 54, 47);
+        ctx.lineTo(58, 9);
+        ctx.stroke();
+
+        ctx.strokeStyle = "#ad6d27";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(16, 35);
+        ctx.quadraticCurveTo(35, 39, 54, 35);
+        ctx.stroke();
+
+        ctx.strokeStyle = "#322d27";
+        ctx.lineWidth = 2;
+
+        ctx.beginPath();
+        ctx.moveTo(24, 25);
+        ctx.lineTo(33, 18);
+        ctx.lineTo(41, 27);
+        ctx.lineTo(32, 34);
+        ctx.closePath();
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(39, 34);
+        ctx.lineTo(48, 26);
+        ctx.lineTo(54, 35);
+        ctx.lineTo(45, 42);
+        ctx.closePath();
+        ctx.stroke();
+
+        ctx.restore();
+    }
+
+
+    function hpDrawShareCard() {
+        const state = hpQuizState;
+
+        const canvas = document.createElement("canvas");
+        canvas.width = 1080;
+        canvas.height = 1350;
+
+        const ctx = canvas.getContext("2d");
+
+        ctx.fillStyle = "#f3f0e8";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.strokeStyle = "#a9977c";
+        ctx.lineWidth = 3;
+        hpCanvasRoundedRect(ctx, 48, 48, 984, 1254, 26);
+        ctx.stroke();
+
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+
+        ctx.fillStyle = "#29251f";
+        ctx.font = '500 48px Georgia, "Yu Mincho", serif';
+        ctx.fillText("HOME POUR", 540, 122);
+
+        ctx.fillStyle = "#554d44";
+        ctx.font = '26px "Yu Mincho", serif';
+        ctx.fillText("家飲みと、次の楽しみ。", 540, 169);
+
+        hpDrawBottle(ctx, 355, 218, 2.2);
+        hpDrawGlass(ctx, 550, 275, 2.25);
+
+        const quizMainLine = `同じ${state.count}杯`;
+        const quizNote = "（ボトル1本分）";
+
+        ctx.fillStyle = "#29251f";
+        ctx.textAlign = "left";
+
+        ctx.font = '500 58px "Yu Mincho", serif';
+        const quizMainWidth = ctx.measureText(quizMainLine).width;
+
+        ctx.font = '28px "Yu Mincho", serif';
+        const quizNoteWidth = ctx.measureText(quizNote).width;
+
+        const quizLineGap = 12;
+        const quizLineStartX = 540 - ((quizMainWidth + quizLineGap + quizNoteWidth) / 2);
+
+        ctx.font = '500 58px "Yu Mincho", serif';
+        ctx.fillText(quizMainLine, quizLineStartX, 446);
+
+        ctx.font = '28px "Yu Mincho", serif';
+        ctx.fillStyle = "#5f574f";
+        ctx.fillText(quizNote, quizLineStartX + quizMainWidth + quizLineGap, 449);
+
+        ctx.textAlign = "center";
+        ctx.fillStyle = "#29251f";
+        ctx.font = '500 58px "Yu Mincho", serif';
+        ctx.fillText("家で楽しむなら？", 540, 520);
+
+        ctx.strokeStyle = "#cdbb9d";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(160, 579);
+        ctx.lineTo(920, 579);
+        ctx.stroke();
+
+        ctx.fillStyle = "#7a6f63";
+        ctx.font = '500 32px Georgia, "Yu Mincho", serif';
+        ctx.fillText("HOME（家飲み）", 340, 623);
+        ctx.fillText("OUT（お店）", 740, 623);
+
+        ctx.fillStyle = "#ad6d27";
+        ctx.font = '500 52px Georgia, "Yu Mincho", serif';
+        ctx.fillText("¥???", 340, 680);
+
+        ctx.fillStyle = "#29251f";
+        ctx.font = '500 52px Georgia, "Yu Mincho", serif';
+        ctx.fillText(`¥${hpFormatYen(state.outTotal)}`, 740, 680);
+
+        ctx.strokeStyle = "#cdbb9d";
+        ctx.beginPath();
+        ctx.moveTo(160, 730);
+        ctx.lineTo(920, 730);
+        ctx.stroke();
+
+        const letters = ["A", "B", "C", "D"];
+        const optionPositions = [
+            [170, 775],
+            [555, 775],
+            [170, 870],
+            [555, 870]
+        ];
+
+        state.choices.forEach((value, index) => {
+            const [x, y] = optionPositions[index];
+
+            ctx.strokeStyle = "#bca98b";
+            ctx.lineWidth = 2;
+            hpCanvasRoundedRect(ctx, x, y, 355, 72, 36);
+            ctx.stroke();
+
+            ctx.textAlign = "left";
+
+            ctx.fillStyle = "#ad6d27";
+            ctx.font = '500 25px Arial, sans-serif';
+            ctx.fillText(`${letters[index]}.`, x + 28, y + 37);
+
+            ctx.fillStyle = "#29251f";
+            ctx.font = '32px Georgia, "Yu Mincho", serif';
+            ctx.fillText(`¥${hpFormatYen(value)}`, x + 80, y + 37);
+        });
+
+        ctx.textAlign = "center";
+
+        ctx.fillStyle = "#29251f";
+        ctx.font = '500 30px "Yu Mincho", serif';
+        ctx.fillText("答えを見る → HOME POUR", 540, 1088);
+
+        ctx.strokeStyle = "#ad6d27";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(370, 1112);
+        ctx.lineTo(710, 1112);
+        ctx.stroke();
+
+        ctx.fillStyle = "#81766a";
+        ctx.font = '18px Arial, sans-serif';
+        ctx.fillText("HOME POUR / SHARE QUIZ", 540, 1236);
+
+        return canvas;
+    }
+
+
+    function hpCanvasToBlob(canvas) {
+        return new Promise((resolve) => {
+            canvas.toBlob(
+                resolve,
+                "image/png",
+                1
+            );
+        });
+    }
+
+
+    function hpGetShareText() {
+        const state = hpQuizState;
+        const letters = ["A", "B", "C", "D"];
+
+        const options = state.choices
+            .map(
+                (value, index) =>
+                    `${letters[index]}. ¥${hpFormatYen(value)}`
+            )
+            .join("\n");
+
+        return [
+            "HOME POUR",
+            "",
+            `同じ${state.count}杯（ボトル1本分）`,
+            "家で楽しむなら？",
+            `OUT ¥${hpFormatYen(state.outTotal)}`,
+            "",
+            options,
+            "",
+            "答えを見る → HOME POUR",
+            state.answerUrl
+        ].join("\n");
+    }
+
+
+    hpQuizAction.addEventListener(
+        "click",
+        async () => {
+            if (!hpQuizState) {
+                return;
+            }
+
+            hpQuizStatus.textContent = "シェアカードを作成しています…";
+
+            try {
+                const canvas = hpDrawShareCard();
+                const blob = await hpCanvasToBlob(canvas);
+
+                if (!blob) {
+                    throw new Error("画像生成に失敗しました");
+                }
+
+                const file = new File(
+                    [blob],
+                    "home-pour-quiz.png",
+                    { type: "image/png" }
+                );
+
+                const shareData = {
+                    title: "HOME POUR｜金額当てクイズ",
+                    text: hpGetShareText(),
+                    url: hpQuizState.answerUrl
+                };
+
+                if (
+                    navigator.share &&
+                    navigator.canShare &&
+                    navigator.canShare({ files: [file] })
+                ) {
+                    await navigator.share({
+                        ...shareData,
+                        files: [file]
+                    });
+
+                    hpQuizStatus.textContent = "";
+                    return;
+                }
+
+                if (navigator.share) {
+                    await navigator.share(shareData);
+                    hpQuizStatus.textContent = "";
+                    return;
+                }
+
+                const downloadUrl = URL.createObjectURL(blob);
+                const link = document.createElement("a");
+
+                link.href = downloadUrl;
+                link.download = "home-pour-quiz.png";
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+
+                setTimeout(
+                    () => URL.revokeObjectURL(downloadUrl),
+                    1000
+                );
+
+                try {
+                    await navigator.clipboard.writeText(
+                        hpGetShareText()
+                    );
+
+                    hpQuizStatus.textContent =
+                        "画像を保存し、クイズ文とリンクをコピーしました。";
+                } catch (clipboardError) {
+                    hpQuizStatus.textContent =
+                        "画像を保存しました。答えのリンクはカード下から開けます。";
+                }
+
+            } catch (error) {
+                if (
+                    error &&
+                    error.name === "AbortError"
+                ) {
+                    hpQuizStatus.textContent = "";
+                    return;
+                }
+
+                console.error("Quiz share failed:", error);
+
+                hpQuizStatus.textContent =
+                    "シェアに失敗しました。もう一度お試しください。";
+            }
+        }
+    );
+
+
+    /* =========================
+       SHARED QUIZ URL
+    ========================== */
+
+    function hpApplySharedQuizParams() {
+        const params = new URLSearchParams(
+            window.location.search
+        );
+
+        if (params.get("quiz") !== "1") {
+            return;
+        }
+
+        const bp = Number(params.get("bp"));
+        const bv = Number(params.get("bv"));
+        const pv = Number(params.get("pv"));
+        const sp = Number(params.get("sp"));
+
+        if (
+            !bp ||
+            !bv ||
+            !pv ||
+            !sp ||
+            bp <= 0 ||
+            bv <= 0 ||
+            pv <= 0 ||
+            sp <= 0
+        ) {
+            return;
+        }
+
+        document.getElementById("bottlePrice").value = bp;
+        document.getElementById("bottleVolume").value = bv;
+        document.getElementById("pourVolume").value = pv;
+        document.getElementById("shopPrice").value = sp;
+
+        document.querySelectorAll(
+            '.quick-buttons button[data-target="bottleVolume"]'
+        ).forEach((button) => {
+            button.classList.toggle(
+                "active",
+                Number(button.dataset.value) === bv
+            );
+        });
+
+        document.querySelectorAll(
+            '.quick-buttons button[data-target="pourVolume"]'
+        ).forEach((button) => {
+            button.classList.toggle(
+                "active",
+                Number(button.dataset.value) === pv
+            );
+        });
+
+        setTimeout(() => {
+            document.getElementById("calculateButton").click();
+        }, 80);
+    }
+
+
+    hpApplySharedQuizParams();
+</script>
+
+</body>
+</html>
